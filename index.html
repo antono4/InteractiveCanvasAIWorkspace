@@ -3,456 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workspace Canvas AI All-Hands | Klon Interaktif</title>
-    <!-- Tailwind CSS CDN -->
+    <title>OpenHands Canvas AI | Klon Interaktif</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        canvas: {
-                            bg: '#0a0d14',
-                            sidebar: '#0e131f',
-                            card: '#141b2d',
-                            border: '#1f293d',
-                            hover: '#26334d',
-                            accent: '#3b82f6',
-                            accentGlow: 'rgba(59, 130, 246, 0.15)',
-                            text: '#f3f4f6',
-                            muted: '#9ca3af',
-                            success: '#10b981',
-                            warning: '#f59e0b',
-                            agent: '#6366f1'
-                        }
+                        bg: '#0d0f11',
+                        pane: '#131619',
+                        sidebar: '#24272e',
+                        workspace: '#1f2228',
+                        active: '#31343d',
+                        input: '#393939',
+                        line: '#3c3c4a',
+                        text: '#ecedee',
+                        muted: '#9099ac',
+                        accent: '#5b8def',
+                        agent: '#6366f1',
+                        ok: '#a5e75e'
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace']
+                        sans: ['Outfit', 'system-ui', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'ui-monospace', 'monospace']
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Bilah gulir kustom untuk estetika pengembang */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0a0d14;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1f293d;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3b82f6;
-        }
-        .glow-effect {
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #131619; }
+        ::-webkit-scrollbar-thumb { background: #3c3c4a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5b8def; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-canvas-bg text-canvas-text font-sans antialiased h-screen flex flex-col overflow-hidden selection:bg-canvas-accent selection:text-white">
-
-
-    <!-- Navigasi Atas Workspace -->
-    <header class="h-14 bg-canvas-sidebar border-b border-canvas-border px-4 flex items-center justify-between shrink-0 select-none z-20">
-        <!-- Brand & Pemilih Repositori -->
-        <div class="flex items-center space-x-3">
-            <button id="toggle-sidebar-btn" onclick="toggleChatPane()" title="Sembunyikan/Tampilkan Panel Obrolan" class="p-1.5 text-canvas-muted hover:text-white hover:bg-canvas-card rounded transition">
-                <i class="fa-solid fa-bars text-sm"></i>
-            </button>
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-400 flex items-center justify-center font-bold text-white shadow-lg glow-effect">
-                    <i class="fa-solid fa-hand-holding-hand text-sm"></i>
-                </div>
-                <span class="font-semibold text-sm tracking-wide bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                    Canvas AI <span class="text-xs text-canvas-accent px-1.5 py-0.5 rounded bg-canvas-accent/10 border border-canvas-accent/20 font-mono">OpenHands</span>
-                </span>
-            </div>
-            
-            <div class="h-4 w-[1px] bg-canvas-border hidden sm:block"></div>
-            
-            <!-- Indikator Repositori Git -->
-            <div class="hidden sm:flex items-center space-x-2 bg-canvas-bg hover:bg-canvas-card px-2.5 py-1.5 rounded-md border border-canvas-border text-xs transition cursor-pointer">
-                <i class="fa-brands fa-github text-canvas-muted"></i>
-                <span class="text-gray-300 font-mono">all-hands-ai/app-workspace</span>
-                <i class="fa-solid fa-code-branch text-canvas-accent ml-1"></i>
-                <span class="text-canvas-muted font-mono">utama</span>
-                <i class="fa-solid fa-chevron-down text-[10px] text-canvas-muted ml-1"></i>
-            </div>
-        </div>
-
-
-        <!-- Indikator Status Agen AI -->
-        <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-canvas-card border border-canvas-border text-xs font-mono">
-            <span id="agent-status-indicator" class="w-2 h-2 rounded-full bg-canvas-success animate-pulse"></span>
-            <span id="agent-status-text" class="text-gray-300 font-medium">Agen Siap</span>
-            <span id="agent-timer" class="text-canvas-muted border-l border-canvas-border pl-2 text-[11px]">00:00</span>
-        </div>
-
-
-        <!-- Opsi & Tindakan Kanan -->
-        <div class="flex items-center space-x-3">
-            <!-- Pemilih Model LLM -->
-            <div class="relative group hidden md:block">
-                <select id="model-selector" class="bg-canvas-bg hover:bg-canvas-card text-xs text-gray-300 font-mono px-2.5 py-1.5 rounded-md border border-canvas-border focus:outline-none focus:border-canvas-accent cursor-pointer transition">
-                    <option value="gemini-2.5">Gemini 2.5 Flash</option>
-                    <option value="claude-3-5" selected>Claude 3.5 Sonnet</option>
-                    <option value="gpt-4o">GPT-4o Agent</option>
-                </select>
-            </div>
-
-
-            <!-- Kalkulator Biaya & Token -->
-            <div class="hidden xl:flex items-center space-x-1.5 text-xs text-canvas-muted bg-canvas-bg px-2.5 py-1.5 rounded-md border border-canvas-border font-mono">
-                <i class="fa-solid fa-bolt text-amber-400"></i>
-                <span id="token-count-display">4.2k token</span>
-                <span class="text-gray-600">•</span>
-                <span class="text-canvas-success">$0.012</span>
-            </div>
-
-
-            <!-- Tombol Atur Ulang & Bagikan -->
-            <button id="reset-workspace-btn" title="Atur Ulang Workspace" class="p-2 text-canvas-muted hover:text-white hover:bg-canvas-card rounded-md border border-transparent hover:border-canvas-border transition">
-                <i class="fa-solid fa-rotate-right text-xs"></i>
-            </button>
-            <button onclick="shareWorkspace()" title="Bagikan Canvas" class="hidden sm:flex items-center space-x-1.5 text-xs bg-canvas-accent hover:bg-blue-600 text-white font-medium px-3 py-1.5 rounded-md transition shadow-sm">
-                <i class="fa-solid fa-share-nodes text-xs"></i>
-                <span>Bagikan</span>
-            </button>
-        </div>
-    </header>
-
-
-    <!-- Konten Utama Workspace (Dua Panel) -->
-    <main class="flex-1 flex overflow-hidden relative">
-        
-        <!-- PANEL KIRI: Obrolan & Alur Kerja Agen AI -->
-        <section id="chat-pane" class="w-full lg:w-[420px] xl:w-[460px] bg-canvas-sidebar border-r border-canvas-border flex flex-col shrink-0 transition-all duration-300 z-10">
-            <!-- Header Obrolan -->
-            <div class="px-4 py-2.5 border-b border-canvas-border flex items-center justify-between bg-canvas-bg/50">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-terminal text-canvas-accent text-xs"></i>
-                    <span class="text-xs font-semibold tracking-wider uppercase text-canvas-muted">Alur Kerja Agen</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <span class="text-[10px] bg-canvas-agent/20 text-indigo-300 px-2 py-0.5 rounded border border-canvas-agent/30 font-mono">Mode OpenHands</span>
-                </div>
-            </div>
-
-
-            <!-- Riwayat Pesan Agen -->
-            <div id="chat-feed" class="flex-1 overflow-y-auto p-4 space-y-4">
-                
-                <!-- Kartu Selamat Datang -->
-                <div class="bg-canvas-card/80 border border-canvas-border/80 rounded-xl p-4 shadow-sm space-y-3">
-                    <div class="flex items-center space-x-2 text-canvas-accent">
-                        <i class="fa-solid fa-robot text-base"></i>
-                        <h2 class="font-semibold text-sm">Selamat datang di Workspace OpenHands</h2>
-                    </div>
-                    <p class="text-xs text-canvas-muted leading-relaxed">
-                        Saya adalah agen AI Software Engineer Anda. Berikan instruksi dan saya akan mengedit kode, menjalankan perintah terminal, dan merender aplikasi secara langsung di Canvas kanan Anda.
-                    </p>
-                    <div class="pt-2 border-t border-canvas-border/60">
-                        <p class="text-[11px] font-medium text-gray-400 mb-2">Pilih contoh perintah untuk memulai:</p>
-                        <div class="space-y-1.5">
-                            <button onclick="triggerPresetPrompt('Buat Halaman Landing Startup Teknologi modern dengan statistik interaktif')" class="w-full text-left text-xs bg-canvas-bg hover:bg-canvas-hover border border-canvas-border hover:border-canvas-accent/50 p-2 rounded-lg transition text-gray-300 hover:text-white flex items-center justify-between group">
-                                <span>🚀 Halaman Landing Startup Teknologi</span>
-                                <i class="fa-solid fa-arrow-right text-[10px] text-canvas-muted group-hover:text-canvas-accent transition"></i>
-                            </button>
-                            <button onclick="triggerPresetPrompt('Buat Dasbor Analitis Kripto Dinamis dengan grafik live')" class="w-full text-left text-xs bg-canvas-bg hover:bg-canvas-hover border border-canvas-border hover:border-canvas-accent/50 p-2 rounded-lg transition text-gray-300 hover:text-white flex items-center justify-between group">
-                                <span>📊 Dasbor Analitis Pasar Kripto</span>
-                                <i class="fa-solid fa-arrow-right text-[10px] text-canvas-muted group-hover:text-canvas-accent transition"></i>
-                            </button>
-                            <button onclick="triggerPresetPrompt('Kembangkan Aplikasi Papan Tugas Kanban interaktif')" class="w-full text-left text-xs bg-canvas-bg hover:bg-canvas-hover border border-canvas-border hover:border-canvas-accent/50 p-2 rounded-lg transition text-gray-300 hover:text-white flex items-center justify-between group">
-                                <span>📋 Aplikasi Papan Tugas Kanban</span>
-                                <i class="fa-solid fa-arrow-right text-[10px] text-canvas-muted group-hover:text-canvas-accent transition"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-
-
-            <!-- Form Input Obrolan -->
-            <div class="p-3 bg-canvas-bg border-t border-canvas-border space-y-2">
-                <form id="chat-form" onsubmit="handleUserSubmit(event)" class="relative">
-                    <textarea 
-                        id="user-input" 
-                        rows="3" 
-                        placeholder="Minta agen OpenHands untuk mengedit kode, merancang antarmuka, atau menjalankan perintah..."
-                        class="w-full bg-canvas-card border border-canvas-border rounded-xl p-3 pr-10 text-xs text-gray-200 placeholder-canvas-muted focus:outline-none focus:border-canvas-accent resize-none font-sans"
-                        onkeydown="handleKeyDown(event)"
-                    ></textarea>
-                    
-                    <div class="absolute right-2.5 bottom-3 flex items-center space-x-1.5">
-                        <button type="submit" id="send-btn" class="w-7 h-7 rounded-lg bg-canvas-accent hover:bg-blue-600 text-white flex items-center justify-center transition disabled:opacity-50 shadow">
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                        </button>
-                    </div>
-                </form>
-
-
-                <div class="flex items-center justify-between text-[11px] text-canvas-muted px-1">
-                    <div class="flex items-center space-x-2">
-                        <button onclick="attachContextNotice()" class="hover:text-gray-300 transition flex items-center space-x-1">
-                            <i class="fa-solid fa-paperclip"></i>
-                            <span>Lampirkan Konteks</span>
-                        </button>
-                    </div>
-                    <span>Tekan <kbd class="px-1 py-0.5 rounded bg-canvas-card border border-canvas-border text-[10px] font-mono text-gray-400">Shift + Enter</kbd> untuk baris baru</span>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- PANEL KANAN: Canvas Interaktif (Pratinjau, Editor, Terminal, Berkas) -->
-        <section class="flex-1 flex flex-col bg-canvas-bg overflow-hidden min-w-0">
-            
-            <!-- Bilah Navigasi Tab Canvas -->
-            <div class="h-10 bg-canvas-sidebar border-b border-canvas-border px-3 flex items-center justify-between select-none shrink-0">
-                <div class="flex items-center space-x-1 overflow-x-auto no-scrollbar">
-                    <button id="tab-btn-preview" onclick="switchTab('preview')" class="canvas-tab active flex items-center space-x-2 px-3 py-1.5 rounded-t-md text-xs font-medium border-b-2 border-canvas-accent text-white transition">
-                        <i class="fa-solid fa-globe text-canvas-accent"></i>
-                        <span>Pratinjau Langsung</span>
-                        <span class="w-2 h-2 rounded-full bg-canvas-success inline-block"></span>
-                    </button>
-                    <button id="tab-btn-editor" onclick="switchTab('editor')" class="canvas-tab flex items-center space-x-2 px-3 py-1.5 rounded-t-md text-xs font-medium text-canvas-muted hover:text-gray-200 border-b-2 border-transparent transition">
-                        <i class="fa-solid fa-code text-indigo-400"></i>
-                        <span>Editor Kode</span>
-                        <span id="active-filename-badge" class="font-mono text-[10px] text-canvas-muted bg-canvas-bg px-1.5 py-0.5 rounded">src/App.jsx</span>
-                    </button>
-                    <button id="tab-btn-terminal" onclick="switchTab('terminal')" class="canvas-tab flex items-center space-x-2 px-3 py-1.5 rounded-t-md text-xs font-medium text-canvas-muted hover:text-gray-200 border-b-2 border-transparent transition">
-                        <i class="fa-solid fa-terminal text-emerald-400"></i>
-                        <span>Terminal</span>
-                        <span id="terminal-badge" class="text-[10px] bg-canvas-card border border-canvas-border px-1.5 rounded font-mono text-gray-400">bash</span>
-                    </button>
-                    <button id="tab-btn-files" onclick="switchTab('files')" class="canvas-tab flex items-center space-x-2 px-3 py-1.5 rounded-t-md text-xs font-medium text-canvas-muted hover:text-gray-200 border-b-2 border-transparent transition">
-                        <i class="fa-solid fa-folder-tree text-amber-400"></i>
-                        <span>Penjelajah Berkas</span>
-                    </button>
-                </div>
-
-
-                <!-- Tombol Aksi Kanan Canvas -->
-                <div class="flex items-center space-x-2 text-xs">
-                    <button onclick="refreshPreview()" title="Muat Ulang Pratinjau" class="px-2 py-1 text-canvas-muted hover:text-white bg-canvas-bg hover:bg-canvas-card rounded border border-canvas-border transition">
-                        <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
-                    </button>
-                    <button onclick="openPreviewNewTab()" title="Buka Pratinjau di Tab Baru" class="px-2 py-1 text-canvas-muted hover:text-white bg-canvas-bg hover:bg-canvas-card rounded border border-canvas-border transition flex items-center space-x-1">
-                        <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
-                    </button>
-                </div>
-            </div>
-
-
-            <!-- Wadah Konten Tab Workspace -->
-            <div class="flex-1 relative overflow-hidden">
-                
-                <!-- TAB 1: PRATINJAU LANGSUNG -->
-                <div id="tab-content-preview" class="tab-content absolute inset-0 flex flex-col bg-gray-950">
-                    <!-- Simulasi Bilah Peramban Web -->
-                    <div class="h-8 bg-canvas-card/90 border-b border-canvas-border px-3 flex items-center space-x-2 text-xs select-none">
-                        <div class="flex items-center space-x-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block"></span>
-                        </div>
-                        <div class="flex-1 mx-2 bg-canvas-bg border border-canvas-border rounded px-2.5 py-0.5 text-[11px] text-canvas-muted font-mono flex items-center space-x-2">
-                            <i class="fa-solid fa-lock text-[9px] text-canvas-success"></i>
-                            <span class="text-gray-300 flex-1 truncate">http://localhost:3000/pratinjau</span>
-                            <span class="text-[9px] bg-canvas-border px-1 rounded text-canvas-muted">200 OK</span>
-                        </div>
-                        <div class="flex items-center space-x-2 text-canvas-muted">
-                            <button onclick="toggleDeviceWidth('mobile')" title="Tampilan Seluler" class="hover:text-white"><i class="fa-solid fa-mobile-screen"></i></button>
-                            <button onclick="toggleDeviceWidth('desktop')" title="Tampilan Komputer" class="hover:text-white"><i class="fa-solid fa-desktop"></i></button>
-                        </div>
-                    </div>
-
-
-                    <!-- Wadah Sandbox Iframe Pratinjau Dinamis -->
-                    <div id="preview-wrapper" class="flex-1 w-full h-full bg-slate-950 transition-all duration-300 mx-auto overflow-hidden">
-                        <iframe id="sandbox-iframe" class="w-full h-full border-none" title="Pratinjau Aplikasi Langsung"></iframe>
-                    </div>
-                </div>
-
-
-                <!-- TAB 2: EDITOR KODE -->
-                <div id="tab-content-editor" class="tab-content absolute inset-0 hidden flex bg-canvas-bg">
-                    <!-- Sidebar Berkas Virtual -->
-                    <div class="w-52 bg-canvas-sidebar border-r border-canvas-border flex flex-col shrink-0 select-none">
-                        <div class="p-2.5 border-b border-canvas-border text-[11px] font-semibold text-canvas-muted uppercase tracking-wider flex items-center justify-between">
-                            <span>Berkas Proyek</span>
-                            <i class="fa-solid fa-folder-open text-xs"></i>
-                        </div>
-                        <div id="editor-file-tree" class="p-2 space-y-1 overflow-y-auto text-xs font-mono">
-                            <!-- Diisi secara dinamis melalui JS -->
-                        </div>
-                    </div>
-
-
-                    <!-- Area Teks Kode & Nomor Baris -->
-                    <div class="flex-1 flex flex-col min-w-0">
-                        <div class="h-8 bg-canvas-card border-b border-canvas-border px-3 flex items-center justify-between text-xs font-mono">
-                            <span id="editor-current-path" class="text-canvas-accent">src/App.jsx</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-canvas-muted text-[11px]">UTF-8</span>
-                                <button onclick="saveAndCompileCode()" class="bg-canvas-accent hover:bg-blue-600 text-white px-2.5 py-0.5 rounded text-[11px] font-sans flex items-center space-x-1 transition">
-                                    <i class="fa-solid fa-play text-[9px]"></i>
-                                    <span>Jalankan Kode</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex-1 flex font-mono text-xs overflow-hidden relative">
-                            <!-- Nomor Baris -->
-                            <div id="editor-line-numbers" class="w-10 bg-canvas-sidebar border-r border-canvas-border py-3 text-right pr-2 text-canvas-muted select-none text-[11px] leading-relaxed overflow-hidden">
-                                1
-                            </div>
-                            <!-- Textarea Editor Kode -->
-                            <textarea 
-                                id="code-input" 
-                                spellcheck="false" 
-                                class="flex-1 bg-canvas-bg text-gray-200 p-3 leading-relaxed focus:outline-none resize-none font-mono text-xs selection:bg-indigo-900 border-none" 
-                                oninput="updateLineNumbers()"
-                                onscroll="syncLineScroll()"
-                                onkeydown="handleEditorTabKey(event)"
-                            ></textarea>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- TAB 3: TERMINAL CLI -->
-                <div id="tab-content-terminal" class="tab-content absolute inset-0 hidden flex flex-col bg-black font-mono text-xs p-4 overflow-y-auto select-text">
-                    <div class="text-emerald-400 mb-2">
-                        OpenHands AI Workspace Terminal v2.5.0 (x86_64-pc-linux-gnu)
-                    </div>
-                    <div class="text-gray-500 mb-4">
-                        Ketik 'help' untuk melihat perintah CLI yang tersedia atau masukkan petunjuk di obrolan agar agen AI menjalankan skrip secara otomatis.
-                    </div>
-                    <div id="terminal-history" class="space-y-1.5 mb-2">
-                        <!-- Log terminal dibuat secara dinamis -->
-                    </div>
-                    <div class="flex items-center space-x-2 text-gray-200">
-                        <span class="text-emerald-400">pengguna@all-hands-workspace:~$</span>
-                        <input id="terminal-cli-input" type="text" class="flex-1 bg-transparent border-none focus:outline-none text-white font-mono text-xs" onkeydown="handleTerminalInput(event)" placeholder="Masukkan perintah...">
-                    </div>
-                </div>
-
-
-                <!-- TAB 4: PENJELAJAH BERKAS -->
-                <div id="tab-content-files" class="tab-content absolute inset-0 hidden p-6 bg-canvas-bg overflow-y-auto">
-                    <h3 class="text-sm font-semibold text-gray-200 mb-4 flex items-center space-x-2">
-                        <i class="fa-solid fa-sitemap text-canvas-accent"></i>
-                        <span>Struktur Pohon Berkas Proyek</span>
-                    </h3>
-                    <div id="full-file-explorer" class="bg-canvas-card border border-canvas-border rounded-xl p-4 font-mono text-xs space-y-2">
-                        <!-- Diisi secara dinamis -->
-                    </div>
-                </div>
-
-
-            </div>
-        </section>
-    </main>
-
-
-    <!-- Skrip Pengendali Utama Workspace Canvas -->
-    <script>
-        // Status Global Aplikasi
-        const state = {
-            activeTab: 'preview',
-            isAgentRunning: false,
-            timerSeconds: 0,
-            timerInterval: null,
-            activeFile: 'src/App.jsx',
-            files: {
-                'src/App.jsx': `// Komponen Utama Canvas AI OpenHands
-import React, { useState } from 'react';
-
-
-export default function App() {
-  const [hitung, setHitung] = useState(0);
-
-
-  return (
-    <div style={{ fontFamily: 'Inter, sans-serif', padding: '2rem', textAlign: 'center', backgroundColor: '#0f172a', color: '#fff', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto', background: '#1e293b', borderRadius: '1rem', padding: '2rem', border: '1px solid #334155' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1rem', color: '#38bdf8' }}>
-          Workspace Canvas AI All-Hands
-        </h1>
-        <p style={{ color: '#94a3b8', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-          Pilih templat di panel kiri atau ketik instruksi kustom untuk melihat agen OpenHands membangun aplikasi secara langsung!
-        </p>
-        <button 
-          onClick={() => setHitung(hitung + 1)}
-          style={{
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '0.5rem',
-            border: 'none',
-            fontWeight: '600',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}
-        >
-          Hitungan Interaktif: {hitung}
-        </button>
-      </div>
+<body class="bg-bg text-text font-sans antialiased h-screen overflow-hidden flex">
+<!-- SIDE RAIL -->
+<aside class="w-14 bg-sidebar border-r border-line flex flex-col items-center py-2 shrink-0 z-30 select-none">
+    <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-500 via-blue-500 to-cyan-400 flex items-center justify-center text-white text-lg font-bold shadow-lg">
+        <i class="fa-solid fa-hand-holding-hand text-sm"></i>
     </div>
-  );
-}`,
-                'src/styles.css': `/* Gaya Global Aplikasi */
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: #0f172a;
-  color: #f8fafc;
-}`,
-                'package.json': `{
-  "name": "openhands-canvas-app",
-  "version": "1.0.0",
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwindcss": "^3.4.0"
-  }
-}`
-            },
-            terminalLogs: [
-                { type: 'sys', text: 'Menginisialisasi lingkungan sandbox OpenHands...' },
-                { type: 'cmd', text: 'npm install' },
-                { type: 'sys', text: 'Berhasil memasang 420 paket dalam 1.2s' },
-                { type: 'cmd', text: 'npm run start' },
-                { type: 'success', text: 'Kompilasi selesai! Server pengembang aktif di http://localhost:3000' }
-            ]
-        };
+    <div class="flex-1 flex flex-col items-center gap-1 mt-4 w-full">
+        <button onclick="switchView('home')" title="New Chat" class="rail-btn active w-full flex flex-col items-center gap-0.5 py-1.5 text-[10px] font-medium text-muted hover:text-white transition">
+            <i class="fa-solid fa-plus text-base"></i>
+            <span>New Chat</span>
+        </button>
+        <button onclick="switchView('customize')" title="Customize" class="rail-btn w-full flex flex-col items-center gap-0.5 py-1.5 text-[10px] font-medium text-muted hover:text-white transition">
+            <i class="fa-regular fa-compass text-base"></i>
+            <span>Customize</span>
+        </button>
+        <button onclick="switchView('automations')" title="Automate" class="rail-btn w-full flex flex-col items-center gap-0.5 py-1.5 text-[10px] font-medium text-muted hover:text-white transition">
+            <i class="fa-solid fa-bolt text-base"></i>
+            <span>Automate</span>
+        </button>
+    </div>
+    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white shrink-0">AK</div>
+</aside>
 
+<!-- CONVERSATION PANEL -->
+<section id="conversations-panel" class="w-72 bg-pane border-r border-line flex flex-col shrink-0 z-20">
+    <div class="px-3 py-2.5 border-b border-line flex items-center justify-between">
+        <span class="text-xs font-semibold text-text tracking-wide">Conversations</span>
+        <button onclick="triggerPresetPrompt('Buat Halaman Landing Startup Teknologi modern dengan statistik interaktif')" title="New conversation" class="p-1.5 rounded-md text-muted hover:text-white hover:bg-active transition">
+            <i class="fa-solid fa-folder-plus text-sm"></i>
+        </button>
+    </div>
+    <div id="conversation-list" class="flex-1 overflow-y-auto p-2 space-y-1 text-sm">
+        <!-- items rendered by JS -->
+    </div>
+    <div class="p-2.5 border-t border-line space-y-0.5 text-xs">
+        <button onclick="copyShareLink()" class="w-full flex items-center space-x-2 px-2 py-1.5 rounded-md text-muted hover:text-white hover:bg-active transition">
+            <i class="fa-solid fa-share-nodes text-sm w-4"></i><span>Share workspace</span>
+        </button>
+        <button onclick="alert('Pengaturan backend: Local (http://localhost:3020)')" class="w-full flex items-center space-x-2 px-2 py-1.5 rounded-md text-muted hover:text-white hover:bg-active transition">
+            <i class="fa-solid fa-server text-sm w-4"></i><span>Local</span><span class="ml-auto text-[10px] text-ok">Connected</span>
+        </button>
+    </div>
+</section>
 
-        // Templat Preset Aplikasi
-        const PRESET_TEMPLATES = {
+<!-- MAIN CONTENT -->
+<main class="flex-1 flex flex-col min-w-0 bg-bg relative">
+
+    <!-- HOME VIEW -->
+    <div id="view-home" class="view flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 overflow-y-auto">
+            <div class="max-w-2xl mx-auto px-6 pt-16 pb-8">
+                <h1 class="text-2xl font-semibold text-text mb-1">Let's Start Building!</h1>
+                <p class="text-muted text-sm mb-8">What do you want to build?</p>
+                <textarea id="composer-home" rows="3" placeholder="Describe what you want to build... (contoh: buat dasbor kripto dengan grafik live)"
+                    class="w-full bg-workspace border border-line rounded-xl p-3 pr-12 text-sm placeholder-muted focus:outline-none focus:border-accent resize-none"></textarea>
+                <div class="flex items-center justify-between mt-3">
+                    <button onclick="submitHomePrompt()" class="bg-accent hover:bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition">Buat</button>
+                    <div class="flex items-center space-x-2 text-xs text-muted">
+                        <button onclick="openWorkspaceModal()" class="px-2.5 py-1.5 rounded-md border border-line hover:bg-active hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-folder-open text-ok text-sm"></i><span>Open Workspace</span>
+                        </button>
+                        <button onclick="alert('Pemilihan model: Claude 3.5 Sonnet (default))')" class="px-2.5 py-1.5 rounded-md border border-line hover:bg-active hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-brain text-sm"></i><span>Model</span>
+                        </button>
+                        <span class="px-2 py-1 rounded-md bg-sidebar border border-line flex items-center space-x-1.5 text-[11px]">
+                            <i class="fa-solid fa-circle text-[6px] text-ok"></i><span>Local</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT VIEW -->
+    <div id="view-chat" class="view hidden flex-1 flex-col overflow-hidden">
+        <header class="h-11 bg-pane border-b border-line px-3 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-2 min-w-0">
+                <span id="chat-title" class="text-sm font-medium text-text truncate">Authentication module refactor</span>
+                <span id="chat-meta" class="text-[10px] text-muted bg-sidebar border border-line px-1.5 py-0.5 rounded font-mono shrink-0">2s</span>
+            </div>
+            <div class="flex items-center space-x-1 text-xs text-muted">
+                <button onclick="toggleChatPane()" class="p-1.5 hover:bg-active rounded-md hover:text-white" title="Toggle sidebar"><i class="fa-solid fa-panel-left"></i></button>
+            </div>
+        </header>
+        <div id="chat-thread" class="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl w-full mx-auto"></div>
+        <div class="p-3 border-t border-line bg-bg">
+            <div id="activity-chip" class="hidden max-w-4xl mx-auto mb-2 text-xs text-muted"></div>
+            <div class="relative max-w-4xl mx-auto">
+                <textarea id="chat-input" rows="2" placeholder="What do you want to build?"
+                    class="w-full bg-workspace border border-line rounded-xl p-3 pr-16 text-sm placeholder-muted focus:outline-none focus:border-accent resize-none"
+                    onkeydown="handleChatKeydown(event)"></textarea>
+                <div class="absolute right-2 bottom-2 flex items-center space-x-1">
+                    <button onclick="runAgentFromModel()" title="Model" class="w-7 h-7 rounded-md text-muted hover:bg-active hover:text-white transition"><i class="fa-solid fa-brain text-xs"></i></button>
+                    <button onclick="runAgentFromModel()" id="chat-send" class="w-7 h-7 rounded-md bg-accent text-white flex items-center justify-center transition"><i class="fa-solid fa-arrow-up text-xs"></i></button>
+                </div>
+            </div>
+            <p class="max-w-4xl mx-auto mt-1.5 text-[10px] text-muted px-1">OpenHands dapat menggunakan file, terminal, and browser. Verifikasi ulang informasi penting sebelum mengambil tindakan.</p>
+        </div>
+    </div>
+    <!-- AUTOMATIONS VIEW -->
+    <div id="view-automations" class="view hidden flex-1 flex-col overflow-hidden">
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-xl font-semibold">Automations</h1>
+                        <p class="text-xs text-muted mt-1">View active and inactive automations, search by metadata,and inspect read-only details.</p>
+                    </div>
+                    <button onclick="alert('Alur tambah automation: pilih template, hubungkan MCP, lalu aktifkan.')" class="bg-accent hover:bg-blue-600 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition flex items-center space-x-2">
+                        <i class="fa-solid fa-plus text-xs"></i><span>Add Automation</span>
+                    </button>
+                </div>
+                <div class="relative mb-4">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted"></i>
+                    <input id="automation-search" oninput="renderAutomations(this.value)" placeholder="Search automations..."
+                        class="w-full bg-workspace border border-line rounded-lg pl-8 pr-3 py-2 text-sm placeholder-muted focus:outline-none focus:border-accent">
+                </div>
+                <div class="flex items-center space-x-2 text-xs text-muted mb-4">
+                    <span class="text-text font-medium">Active</span><span class="text-[10px] bg-ok/15 text-ok border border-ok/25 px-1.5 py-0.5 rounded">3</span>
+                </div>
+                <div id="automation-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOMIZE VIEW -->
+    <div id="view-customize" class="view hidden flex-1 flex-col overflow-hidden">
+        <div class="flex-1 overflow-y-auto">
+            <div class="max-w-5xl mx-auto p-6">
+                <h1 class="text-xl font-semibold mb-1">Customize</h1>
+                <p class="text-xs text-muted mb-5">These settings are synced from <span class="text-text font-mono">Local</span> backend (<span class="font-mono">http://localhost:3020</span>)</p>
+                <div class="flex items-center space-x-1 border-b border-line text-sm mb-5">
+                    <button onclick="switchCustomizeTab('skills')" id="c-tab-skills" class="customize-tab active px-3 py-2 border-b-2 border-accent text-white font-medium">Skills</button>
+                    <button onclick="switchCustomizeTab('mcp')" id="c-tab-mcp" class="customize-tab px-3 py-2 border-b-2 border-transparent text-muted hover:text-white">MCP Servers</button>
+                    <button onclick="switchCustomizeTab('plugins')" id="c-tab-plugins" class="customize-tab px-3 py-2 border-b-2 border-transparent text-muted hover:text-white">Plugins <span class="ml-1 text-[9px] bg-warning/15 text-amber-400 border border-warning/25 px-1 rounded">Coming Soon</span></button>
+                </div>
+
+                <div id="c-panel-skills" class="c-panel">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-xs text-muted">Discover skills to add to your workspace. Open a card for prompts, curl,and install flows.</p>
+                        <button onclick="alert('Skill baru dapat ditambahkan dari GitHub OpenHands/extensions.')" class="text-xs bg-accent/10 text-accent border border-accent/25 px-2.5 py-1.5 rounded-md hover:bg-accent/20 transition">Add skill</button>
+                    </div>
+                    <div class="relative mb-4">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted"></i>
+                        <input oninput="filterSkills(this.value)" placeholder="Search skills by name, description, or trigger"
+                            class="w-full bg-workspace border border-line rounded-lg pl-8 pr-3 py-2 text-sm placeholder-muted focus:outline-none focus:border-accent">
+                    </div>
+                    <div id="skills-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div id="c-panel-mcp" class="c-panel hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-xs text-muted">Add Model Context Protocol servers to expand what your agent can do. Click any server below to install it.</p>
+                        <button onclick="alert('Tambahkan server MCP kustom lewat URL SSH ataupun transport stdio.')" class="text-xs bg-accent/10 text-accent border border-accent/25 px-2.5 py-1.5 rounded-md hover:bg-accent/20 transition">Add custom server</button>
+                    </div>
+                    <div class="relative mb-4">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted"></i>
+                        <input placeholder="Search MCP servers" class="w-full bg-workspace border border-line rounded-lg pl-8 pr-3 py-2 text-sm placeholder-muted focus:outline-none focus:border-accent">
+                    </div>
+                    <div id="mcp-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div id="c-panel-plugins" class="c-panel hidden">
+                    <div class="bg-workspace border border-dashed border-line rounded-xl p-8 text-center text-muted text-sm">
+                        <i class="fa-solid fa-puzzle-piece text-2xl mb-3 text-line"></i>
+                        <p>Plugin ecosystem is coming soon. Stay tunedin this workspace.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BROWSER DRAWER (renders agent output) -->
+    <div id="browser-drawer" class="hidden absolute inset-0 z-10 bg-workspace flex flex-col border-t border-line">
+        <div class="h-9 bg-pane border-b border-line px-3 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-2 text-xs text-muted font-mono">
+                <i class="fa-solid fa-lock text-[9px] text-ok"></i><span>http://localhost:3000/pratinjau</span><span class="bg-sidebar border border-line px-1.5 rounded text-[10px]">200 OK</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+                <button onclick="refreshBrowser()" class="p-1.5 hover:bg-active rounded-md hover:text-white"><i class="fa-solid fa-arrows-rotate text-[11px]"></i></button>
+                <button onclick="openBrowserNewTab()" class="p-1.5 hover:bg-active rounded-md hover:text-white"><i class="fa-solid fa-up-right-from-square text-[10px]"></i></button>
+                <button onclick="toggleBrowserDrawer(false)" class="p-1.5 hover:bg-active rounded-md hover:text-white"><i class="fa-solid fa-xmark text-[11px]"></i></button>
+            </div>
+        </div>
+        <iframe id="preview-frame" class="flex-1 w-full border-none bg-white"></iframe>
+    </div>
+</main>
+
+<!-- WORKSPACE PICKER MODAL -->
+<div id="workspace-modal" class="hidden fixed inset-0 z-40 bg-black/60 items-center justify-center">
+    <div class="bg-pane border border-line rounded-xl w-[420px] max-w-[92vw] p-4 shadow-2xl">
+        <h3 class="text-sm font-semibold mb-3 flex items-center space-x-2"><i class="fa-solid fa-folder-open text-ok"></i><span>Open Workspace</span></h3>
+        <div class="bg-workspace border border-line rounded-lg p-2.5 mb-3 text-sm">
+            <div class="text-muted text-xs mb-1">Current workspace</div>
+            <div class="font-mono text-xs text-text flex items-center space-x-2"><i class="fa-brands fa-github text-muted"></i><span>antono4/InteractiveCanvasAIWorkspace</span></div>
+        </div>
+        <div class="space-y-1.5 text-sm text-muted max-h-52 overflow-y-auto mb-4">
+            <div class="flex items-center space-x-2 p-1.5 rounded-md hover:bg-active hover:text-white cursor-pointer"><i class="fa-solid fa-folder text-xs"></i><span>~/projects/openhands-canvas</span></div>
+            <div class="flex items-center space-x-2 p-1.5 rounded-md hover:bg-active hover:text-white cursor-pointer"><i class="fa-solid fa-folder text-xs"></i><span>~/projects/acme/frontend-app</span></div>
+            <div class="flex items-center space-x-2 p-1.5 rounded-md hover:bg-active hover:text-white cursor-pointer"><i class="fa-solid fa-folder text-xs"></i><span>~/projects/acme/docs</span></div>
+        </div>
+        <div class="flex justify-end space-x-2">
+            <button onclick="closeWorkspaceModal()" class="px-3 py-1.5 rounded-md border border-line text-xs hover:bg-active text-muted transition">Batal</button>
+            <button onclick="closeWorkspaceModal();alert('Workspace dibuka.')" class="px-3 py-1.5 rounded-md bg-accent text-white text-xs hover:bg-blue-600 transition">Buka</button>
+        </div>
+    </div>
+</div>
+<script>
+"use strict";
+
+// ===== Data =====
+const CONVERSATIONS = [
+    { id: 1, title: 'Authentication module refactor', meta: '2s', active: true },
+    { id:  ﻿2, title: 'Payment API integration', meta: '6h' },
+    { id:  ﻿3, title: 'Documentation site update', meta: '18h' },
+    { id:  ﻿4, title: 'Mobile onboarding flow', meta: '1d' },
+    { id:  ﻿5, title: 'Platform migration', meta: '10d' }
+];
+
+const PRESET_TEMPLATES = {
             'Buat Halaman Landing Startup Teknologi modern dengan statistik interaktif': {
                 filename: 'src/App.jsx',
                 code: `<!DOCTYPE html>
@@ -699,574 +511,426 @@ body {
             }
         };
 
+// ===== State =====
+const state = {
+    activeView: 'home',
+    customizeTab: 'skills',
+    agentRunning: false,
+    timerQueue: []
+};
 
-        // Inisialisasi Aplikasi Saat Memuat Halaman
-        window.onload = function() {
-            renderFileTree();
-            updateEditorContent();
-            renderTerminal();
-            renderFullFileExplorer();
-            compileAndRenderPreview(state.files['src/App.jsx']);
-            
-            // Pesan selamat datang dari agen
-            appendAgentMessage({
-                thought: "Workspace siap. Agen OpenHands siap menerima instruksi Anda.",
-                actions: [
-                    { type: 'Inisialisasi', text: 'Memuat templat bawaan React ke src/App.jsx' }
-                ]
-            });
-        };
+// ===== Navigation =====
+function switchView(view) {
+    state.activeView = view;
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    const el = document.getElementById('view-' + view);
+    if (el) el.classList.remove('hidden');
+    document.querySelectorAll('.rail-btn').forEach(b => {
+        b.classList.remove('active', 'text-white');
+        b.classList.add('text-muted');
+    });
+    const idx = view === 'home' ? 0 : view === 'automations' ? 2 : view === 'customize' ? 1 : -1;
+    if (idx >= 0) {
+        const btn = document.querySelectorAll('.rail-btn')[idx];
+        if (btn) { btn.classList.add('active', 'text-white'); btn.classList.remove('text-muted'); }
+    }
+    if (view === 'automations') renderAutomations('');
+    if (view === 'customize') renderSkills();
+}
 
+function toggleChatPane() {
+    document.getElementById('conversations-panel').classList.toggle('hidden');
+}
 
-        // Beralih Tab Canvas
-        function switchTab(tabName) {
-            state.activeTab = tabName;
-            
-            document.querySelectorAll('.canvas-tab').forEach(tab => {
-                tab.classList.remove('active', 'border-canvas-accent', 'text-white');
-                tab.classList.add('border-transparent', 'text-canvas-muted');
-            });
-            
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active', 'border-canvas-accent', 'text-white');
-                activeBtn.classList.remove('border-transparent', 'text-canvas-muted');
-            }
+// ===== Conversations =====
+function renderConversations() {
+    const list = document.getElementById('conversation-list');
+    list.innerHTML = CONVERSATIONS.map(c =>
+        '<div onclick="openConversation(' + c.id + ')" class="flex items-center justify-between p-2 rounded-lg cursor-pointer transition ' + (c.active ? 'bg-active text-white' : 'text-muted hover:bg-active hover:text-white') + '">' +
+            '<span class="truncate text-sm">' + esc(c.title) + '</span>' +
+            '<span class="text-[10px] font-mono shrink-0 ml-2">' + esc(c.meta) + '</span>' +
+        '</div>'
+    ).join('');
+}
 
+function openConversation(id) {
+    const conv = CONVERSATIONS.find(c => c.id === id);
+    if (!conv) return;
+    CONVERSATIONS.forEach(c => c.active = (c.id === id));
+    renderConversations();
+    state.activeConversation = id;
+    document.getElementById('chat-title').textContent = conv.title;
+    document.getElementById('chat-meta').textContent = conv.meta;
+    switchView('chat');
+    const thread = document.getElementById('chat-thread');
+    if (!thread.dataset.primed) {
+        thread.dataset.primed = '1';
+        thread.innerHTML = '';
+        appendUserMessage('Refactor the authentication module to use short-lived JWT access tokens with refresh token rotation. Keep backward compatibility for existing API clients.');
+        runAgentSteps('Refactor the authentication module to use short-lived JWT access tokens with refresh token rotation.');
+    }
+}
 
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
+// ===== Chat rendering =====
+function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
 
+function appendUserMessage(text) {
+    const thread = document.getElementById('chat-thread');
+    const div = document.createElement('div');
+    div.className = 'flex justify-end';
+    div.innerHTML = '<div class="max-w-[80%] bg-accent text-white rounded-2xl rounded-tr-none px-3.5 py-2.5 text-sm leading-relaxed shadow-sm">' + esc(text) + '</div>';
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+}
 
-            const activeContent = document.getElementById(`tab-content-${tabName}`);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-            }
+function appendAgentThought(text) {
+    const thread = document.getElementById('chat-thread');
+    const div = document.createElement('div');
+    div.className = 'space-y-2 border-l-2 border-agent pl-3';
+    div.innerHTML = '' +
+        '<div class="flex items-center space-x-2 text-xs font-semibold text-indigo-300">' +
+            '<i class="fa-solid fa-robot text-agent"></i><span>OpenHands</span>' +
+        '</div>' +
+        '<p class="text-sm text-text leading-relaxed">' + esc(text) + '</p>';
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+}
 
+function appendToolCall(label, cmd, status) {
+    const thread = document.getElementById('chat-thread');
+    const div = document.createElement('div');
+    const st = status || 'done';
+    const stColor = st === 'done' ? 'text-ok' : 'text-accent';
+    div.className = 'space-y-1.5 border-l-2 border-agent pl-3';
+    div.innerHTML = '' +
+        '<div class="bg-workspace border border-line rounded-lg overflow-hidden">' +
+            '<div class="flex items-center justify-between px-2.5 py-1.5 bg-pane border-b border-line">' +
+                '<span class="text-[10px] font-mono text-indigo-300 flex items-center space-x-1.5">' +
+                    '<i class="fa-solid fa-gear text-[10px]"></i><span>' + esc(label) + '</span>' +
+                '</span>' +
+                '<span class="text-[10px] font-mono ' + stColor + '">' + (st === 'done' ? 'Selesai' : 'Berjalan...') + '</span>' +
+            '</div>' +
+            '<div class="p-2 font-mono text-[11px] text-gray-300 bg-bg/60 overflow-x-auto"><code>' + esc(cmd) + '</code></div>' +
+        '</div>';
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+}
 
-            if (tabName === 'editor') {
-                updateEditorContent();
-            }
+function appendConsentRow(text) {
+    const thread = document.getElementById('chat-thread');
+    const div = document.createElement('div');
+    div.className = 'flex items-center justify-between gap-3 bg-workspace border border-line rounded-lg px-3 py-2';
+    div.innerHTML = '' +
+        '<span class="text-xs text-muted">' + esc(text) + '</span>' +
+        '<div class="flex items-center space-x-2 shrink-0">' +
+            '<button onclick="this.closest(\'div\').remove()" class="text-xs px-2.5 py-1 rounded-md border border-line text-muted hover:bg-active hover:text-white transition">Cancel</button>' +
+            '<button onclick="this.closest(\'div\').remove()" class="text-xs px-2.5 py-1 rounded-md bg-accent text-white hover:bg-blue-600 transition">Continue</button>' +
+        '</div>';
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+}
+
+// ===== Agent Simulation =====
+function setChip(text, show) {
+    const chip = document.getElementById('activity-chip');
+    if (show === false) {
+        chip.classList.add('hidden');
+        chip.innerHTML = '';
+        return;
+    }
+    chip.innerHTML = '<span class="inline-flex items-center space-x-1.5 bg-workspace border border-line px-2 py-1 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span><span>' + esc(text) + '</span></span>';
+    chip.classList.remove('hidden');
+}
+
+function schedule(fn, ms) {
+    state.timerQueue.push(setTimeout(fn, ms));
+}
+
+function runAgentSteps(prompt) {
+    if (state.agentRunning) return;
+    state.agentRunning = true;
+    setChip('Thinking...');
+
+    schedule(function() {
+        appendAgentThought('Saya sedang menganalisis instruksi: "' + prompt + '". Menyiapkan struktur proyek yang sesuai.');
+        setChip('Listing auth-related files in the repository...');
+    }, 700);
+
+    schedule(function() {
+        appendToolCall('Perintah Alat: Eksekusi Bash', 'find src -name "*.tsx" | xargs grep -l "auth"', 'running');
+        setChip('Membaca berkas otentikasi...');
+    }, 1500);
+
+    schedule(function() {
+        appendAgentThought('Menemukan berkas inti auth. Selanjutnya memperbarui jwt.ts (15 menit access token), menambahkan refresh rotation di refresh.ts,and merangkai alur baru melalui login routes.');
+        appendConsentRow('Do you want to continue with this action?');
+        setChip(null, false);
+    }, 2600);
+
+    schedule(function() {
+        const tpl = PRESET_TEMPLATES[prompt];
+        if (tpl) {
+            appendAgentThought('Template "' + tpl.title + '" diterapkan. Pratinjau diperbarui pada jendela browser Canvas.');
+            appendToolCall('Pratinjau Browser', 'renderBrowser(template-code)', 'done');
+            appendToolCall('Perintah Alat: Eksekusi Bash', 'npm run build', 'done');
+            renderPreview(tpl.code);
+        } else {
+            appendAgentThought('Tugas selesai. Pratinjau hasil di-render pada jendela browser Canvas.');
+            appendToolCall('Pratinjau Browser', 'renderBrowser(custom-code)', 'done');
+            renderPreview(generateDynamicApp(prompt));
         }
-
-
-        // Perbarui Isi Textarea Editor Kode
-        function updateEditorContent() {
-            const textarea = document.getElementById('code-input');
-            textarea.value = state.files[state.activeFile] || '';
-            updateLineNumbers();
-            document.getElementById('editor-current-path').textContent = state.activeFile;
-            document.getElementById('active-filename-badge').textContent = state.activeFile.split('/').pop();
-        }
-
-
-        // Hitung & Tampilkan Nomor Baris
-        function updateLineNumbers() {
-            const textarea = document.getElementById('code-input');
-            const lines = textarea.value.split('\n').length;
-            const lineNumContainer = document.getElementById('editor-line-numbers');
-            let lineHTML = '';
-            for (let i = 1; i <= Math.max(lines, 12); i++) {
-                lineHTML += i + '<br>';
-            }
-            lineNumContainer.innerHTML = lineHTML;
-            state.files[state.activeFile] = textarea.value;
-        }
-
-
-        // Penyelarasan Scroll Nomor Baris dengan Editor
-        function syncLineScroll() {
-            const textarea = document.getElementById('code-input');
-            const lineNumbers = document.getElementById('editor-line-numbers');
-            lineNumbers.scrollTop = textarea.scrollTop;
-        }
-
-
-        // Penanganan Indentasi Tombol Tab di Textarea
-        function handleEditorTabKey(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const textarea = e.target;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-
-
-                textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
-                textarea.selectionStart = textarea.selectionEnd = start + 2;
-                updateLineNumbers();
-            }
-        }
-
-
-        // Simpan Kode & Eksekusi di Pratinjau
-        function saveAndCompileCode() {
-            const code = document.getElementById('code-input').value;
-            state.files[state.activeFile] = code;
-            compileAndRenderPreview(code);
-            switchTab('preview');
-            addTerminalLog('cmd', `Membuat bundel sandbox dari ${state.activeFile}...`);
-            addTerminalLog('success', 'Kompilasi berhasil! Canvas telah diperbarui.');
-        }
-
-
-        // Render Sandbox Iframe dengan Dukungan React 18 & HTML
-        function compileAndRenderPreview(content) {
-            const iframe = document.getElementById('sandbox-iframe');
-            
-            let htmlDoc = content;
-            const trimmed = content.trim();
-
-
-            if (!trimmed.startsWith('<!DOCTYPE') && !trimmed.startsWith('<html')) {
-                // Bersihkan impor JSX agar dapat dieksekusi oleh Babel Standalone
-                let cleanedJSX = content
-                    .replace(/import\s+[\s\S]*?from\s+['"][^'"]+['"];?/g, '')
-                    .replace(/export\s+default\s+function\s+(\w+)/g, 'function $1')
-                    .replace(/export\s+default\s+/g, '');
-
-
-                htmlDoc = `
-                    <!DOCTYPE html>
-                    <html lang="id">
-                    <head>
-                        <meta charset="UTF-8" />
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <script src="https://cdn.tailwindcss.com"><\/script>
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                        <script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>
-                        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>
-                        <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
-                        <style>
-                            body { margin: 0; font-family: 'Inter', sans-serif; background-color: #0f172a; color: #fff; }
-                        </style>
-                    </head>
-                    <body>
-                        <div id="root"></div>
-                        <script type="text/babel">
-                            try {
-                                ${cleanedJSX}
-
-
-                                const TargetComponent = typeof App !== 'undefined' ? App : null;
-                                if (TargetComponent) {
-                                    const root = ReactDOM.createRoot(document.getElementById('root'));
-                                    root.render(<TargetComponent />);
-                                } else {
-                                    document.getElementById('root').innerHTML = '<div style="padding:2rem;text-align:center;color:#ef4444;">Komponen React utama "App" tidak ditemukan.</div>';
-                                }
-                            } catch (err) {
-                                document.getElementById('root').innerHTML = '<div style="padding:2rem;color:#f87171;font-family:monospace;"><b>Kesalahan Runtime React:</b><br/>' + err.message + '</div>';
-                            }
-                        <\/script>
-                    </body>
-                    </html>
-                `;
-            }
-
-
-            iframe.srcdoc = htmlDoc;
-        }
-
-
-        // Muat Ulang Pratinjau
-        function refreshPreview() {
-            compileAndRenderPreview(state.files[state.activeFile] || '');
-        }
-
-
-        // Buka Pratinjau di Tab Baru
-        function openPreviewNewTab() {
-            const iframe = document.getElementById('sandbox-iframe');
-            const blob = new Blob([iframe.srcdoc], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-        }
-
-
-        // Sembunyikan/Tampilkan Panel Obrolan
-        function toggleChatPane() {
-            const pane = document.getElementById('chat-pane');
-            pane.classList.toggle('hidden');
-        }
-
-
-        // Ubah Mode Lebar Perangkat (Seluler / Komputer)
-        function toggleDeviceWidth(mode) {
-            const wrapper = document.getElementById('preview-wrapper');
-            if (mode === 'mobile') {
-                wrapper.style.maxWidth = '375px';
-                wrapper.style.borderRadius = '1.5rem';
-                wrapper.style.margin = '1rem auto';
-                wrapper.style.height = 'calc(100% - 2rem)';
-                wrapper.style.border = '8px solid #1e293b';
-                wrapper.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
-            } else {
-                wrapper.style.maxWidth = '100%';
-                wrapper.style.borderRadius = '0';
-                wrapper.style.margin = '0';
-                wrapper.style.height = '100%';
-                wrapper.style.border = 'none';
-                wrapper.style.boxShadow = 'none';
-            }
-        }
-
-
-        // Rendernya Pohon Berkas di Editor
-        function renderFileTree() {
-            const container = document.getElementById('editor-file-tree');
-            let html = '';
-            
-            Object.keys(state.files).forEach(filepath => {
-                const isSelected = filepath === state.activeFile;
-                const icon = filepath.endsWith('.jsx') ? 'fa-brands fa-react text-sky-400' :
-                             filepath.endsWith('.css') ? 'fa-brands fa-css3-alt text-blue-400' : 'fa-solid fa-file-code text-amber-400';
-                
-                html += `
-                    <div onclick="selectFile('${filepath}')" class="flex items-center space-x-2 px-2 py-1.5 rounded cursor-pointer transition ${isSelected ? 'bg-canvas-card text-white font-semibold border-l-2 border-canvas-accent' : 'text-canvas-muted hover:bg-canvas-card/50 hover:text-gray-300'}">
-                        <i class="${icon} text-xs"></i>
-                        <span class="truncate">${filepath}</span>
-                    </div>
-                `;
-            });
-
-
-            container.innerHTML = html;
-        }
-
-
-        // Pilih Berkas Aktif
-        function selectFile(filepath) {
-            state.activeFile = filepath;
-            renderFileTree();
-            updateEditorContent();
-        }
-
-
-        // Render Penjelajah Berkas Lengkap
-        function renderFullFileExplorer() {
-            const container = document.getElementById('full-file-explorer');
-            let html = '<div class="text-canvas-accent mb-2"><i class="fa-solid fa-folder-open"></i> root/</div>';
-            
-            Object.keys(state.files).forEach(filepath => {
-                html += `
-                    <div class="flex items-center justify-between p-2 rounded hover:bg-canvas-sidebar border border-transparent hover:border-canvas-border transition">
-                        <div class="flex items-center space-x-2">
-                            <i class="fa-solid fa-file text-canvas-muted"></i>
-                            <span class="text-gray-300">${filepath}</span>
-                        </div>
-                        <span class="text-[10px] text-canvas-muted">${state.files[filepath].length} bytes</span>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-
-        // Pemicu Pesan Preset
-        function triggerPresetPrompt(promptText) {
-            document.getElementById('user-input').value = promptText;
-            handleUserSubmit();
-        }
-
-
-        function handleKeyDown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleUserSubmit();
-            }
-        }
-
-
-        // Pengolahan Submisi Obrolan Pengguna
-        function handleUserSubmit(e) {
-            if (e) e.preventDefault();
-            const input = document.getElementById('user-input');
-            const prompt = input.value.trim();
-            if (!prompt || state.isAgentRunning) return;
-
-
-            appendUserMessage(prompt);
-            input.value = '';
-
-
-            runAgentSimulation(prompt);
-        }
-
-
-        function appendUserMessage(text) {
-            const feed = document.getElementById('chat-feed');
-            const msgNode = document.createElement('div');
-            msgNode.className = "flex justify-end";
-            msgNode.innerHTML = `
-                <div class="bg-canvas-accent text-white px-3.5 py-2.5 rounded-2xl rounded-tr-none text-xs max-w-[85%] leading-relaxed shadow-sm">
-                    ${escapeHtml(text)}
-                </div>
-            `;
-            feed.appendChild(msgNode);
-            feed.scrollTop = feed.scrollHeight;
-        }
-
-
-        function appendAgentMessage(data) {
-            const feed = document.getElementById('chat-feed');
-            const msgNode = document.createElement('div');
-            msgNode.className = "space-y-2 border-l-2 border-canvas-agent pl-3 my-2";
-            
-            let actionsHtml = '';
-            if (data.actions) {
-                data.actions.forEach(act => {
-                    actionsHtml += `
-                        <div class="bg-canvas-card border border-canvas-border rounded-lg p-2 font-mono text-[11px] space-y-1">
-                            <div class="text-indigo-400 flex items-center space-x-1.5">
-                                <i class="fa-solid fa-gear text-[10px] animate-spin"></i>
-                                <span>Perintah Alat: ${act.type || 'Eksekusi Bash'}</span>
-                            </div>
-                            <div class="text-gray-300 bg-canvas-bg p-1.5 rounded text-[10px] overflow-x-auto">
-                                <code>${act.text}</code>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-
-            msgNode.innerHTML = `
-                <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-300">
-                    <i class="fa-solid fa-robot text-canvas-agent"></i>
-                    <span>Agen OpenHands</span>
-                </div>
-                ${data.thought ? `<p class="text-xs text-gray-300 leading-relaxed">${data.thought}</p>` : ''}
-                ${actionsHtml}
-            `;
-            feed.appendChild(msgNode);
-            feed.scrollTop = feed.scrollHeight;
-        }
-
-
-        // Simulasi Alur Kerja Agen AI
-        function runAgentSimulation(prompt) {
-            setAgentStatus('executing', 'Perencanaan & Analisis...');
-            startTimer();
-
-
-            setTimeout(() => {
-                appendAgentMessage({
-                    thought: `Saya sedang menganalisis instruksi Anda: "${prompt}". Menyiapkan struktur proyek dan komponen yang sesuai.`
-                });
-                addTerminalLog('cmd', `openhands-agent plan --prompt "${prompt.substring(0, 35)}..."`);
-            }, 800);
-
-
-            setTimeout(() => {
-                appendAgentMessage({
-                    thought: "Memperbarui kode pada `src/App.jsx` dengan komponen dan gaya antarmuka yang diminta.",
-                    actions: [
-                        { type: 'Penulisan Berkas', text: 'cat << "EOF" > src/App.jsx' }
-                    ]
-                });
-
-
-                let template = PRESET_TEMPLATES[prompt];
-                let targetCode = template ? template.code : generateDynamicApp(prompt);
-
-
-                state.files['src/App.jsx'] = targetCode;
-                renderFileTree();
-                updateEditorContent();
-                compileAndRenderPreview(targetCode);
-                
-                addTerminalLog('cmd', 'npm run build');
-                addTerminalLog('success', 'Berhasil mengompilasi 1 berkas target dalam 380ms.');
-            }, 2200);
-
-
-            setTimeout(() => {
-                appendAgentMessage({
-                    thought: "✨ Tugas selesai! Kode telah diperbarui dan dirender pada jendela pratinjau Canvas Anda.",
-                });
-                setAgentStatus('idle', 'Agen Siap');
-                stopTimer();
-                switchTab('preview');
-            }, 3600);
-        }
-
-
-        function generateDynamicApp(customPrompt) {
-            return `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"><\/script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-slate-950 text-white font-sans p-8 min-h-screen flex items-center justify-center">
-    <div class="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-2xl">
-        <div class="flex items-center space-x-3 text-indigo-400">
-            <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
-            <h1 class="text-2xl font-bold text-white">Aplikasi Canvas Kustom OpenHands</h1>
-        </div>
-        <p class="text-slate-300 text-sm leading-relaxed">
-            Target Instruksi: <span class="text-blue-400 font-mono bg-slate-950 px-2 py-1 rounded border border-slate-800">${escapeHtml(customPrompt)}</span>
-        </p>
-        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 space-y-3">
-            <div class="flex items-center justify-between text-xs text-slate-400">
-                <span>Status</span>
-                <span class="text-emerald-400 font-semibold">Aktif & Berjalan</span>
-            </div>
-            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-full"></div>
-            </div>
-        </div>
-        <div class="flex gap-3">
-            <button onclick="alert('Aksi interaktif dipicu!')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                Uji Pemicu Interaktif
-            </button>
-        </div>
-    </div>
-</body>
-</html>`;
-        }
-
-
-        function setAgentStatus(status, text) {
-            const indicator = document.getElementById('agent-status-indicator');
-            const statusText = document.getElementById('agent-status-text');
-            statusText.textContent = text;
-
-
-            if (status === 'executing') {
-                state.isAgentRunning = true;
-                indicator.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
-            } else {
-                state.isAgentRunning = false;
-                indicator.className = 'w-2 h-2 rounded-full bg-canvas-success animate-pulse';
-            }
-        }
-
-
-        function startTimer() {
-            state.timerSeconds = 0;
-            clearInterval(state.timerInterval);
-            state.timerInterval = setInterval(() => {
-                state.timerSeconds++;
-                const mins = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
-                const secs = String(state.timerSeconds % 60).padStart(2, '0');
-                document.getElementById('agent-timer').textContent = `${mins}:${secs}`;
-            }, 1000);
-        }
-
-
-        function stopTimer() {
-            clearInterval(state.timerInterval);
-        }
-
-
-        function addTerminalLog(type, text) {
-            state.terminalLogs.push({ type, text });
-            renderTerminal();
-        }
-
-
-        function renderTerminal() {
-            const history = document.getElementById('terminal-history');
-            if (!history) return;
-            
-            let html = '';
-            state.terminalLogs.forEach(log => {
-                if (log.type === 'cmd') {
-                    html += `<div class="text-gray-300"><span class="text-emerald-400">pengguna@all-hands:~$</span> ${escapeHtml(log.text)}</div>`;
-                } else if (log.type === 'success') {
-                    html += `<div class="text-emerald-400 font-semibold">${escapeHtml(log.text)}</div>`;
-                } else {
-                    html += `<div class="text-gray-400">${escapeHtml(log.text)}</div>`;
-                }
-            });
-
-
-            history.innerHTML = html;
-            history.scrollTop = history.scrollHeight;
-        }
-
-
-        function handleTerminalInput(e) {
-            if (e.key === 'Enter') {
-                const input = document.getElementById('terminal-cli-input');
-                const val = input.value.trim();
-                if (!val) return;
-
-
-                addTerminalLog('cmd', val);
-                input.value = '';
-
-
-                if (val === 'clear') {
-                    state.terminalLogs = [];
-                    renderTerminal();
-                    return;
-                } else if (val === 'help') {
-                    addTerminalLog('sys', 'Perintah: help, clear, ls, cat <berkas>, npm run build, date, whoami');
-                } else if (val.startsWith('ls')) {
-                    addTerminalLog('sys', Object.keys(state.files).join('  '));
-                } else if (val.startsWith('cat ')) {
-                    const fname = val.split(' ')[1];
-                    if (state.files[fname]) {
-                        addTerminalLog('sys', state.files[fname]);
-                    } else {
-                        addTerminalLog('sys', `cat: ${fname}: Berkas tidak ditemukan`);
-                    }
-                } else if (val === 'whoami') {
-                    addTerminalLog('sys', 'pengguna-openhands');
-                } else if (val === 'date') {
-                    addTerminalLog('sys', new Date().toString());
-                } else {
-                    addTerminalLog('sys', `bash: perintah dijalankan: ${val}`);
-                }
-            }
-        }
-
-
-        function attachContextNotice() {
-            alert('Fitur lampiran konteks: Anda dapat melampirkan berkas repositori atau tautan masalah (issue).');
-        }
-
-
-        function shareWorkspace() {
-            alert('Tautan berbagi workspace OpenHands disalin ke papan klip!');
-        }
-
-
-        function escapeHtml(str) {
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-
-        // Penanganan Atur Ulang Workspace
-        document.getElementById('reset-workspace-btn').onclick = function() {
-            state.terminalLogs = [];
-            document.getElementById('chat-feed').innerHTML = '';
-            addTerminalLog('sys', 'Workspace diatur ulang ke kondisi awal.');
-            setAgentStatus('idle', 'Agen Siap');
-            stopTimer();
-            document.getElementById('agent-timer').textContent = '00:00';
-            
-            // Muat ulang pesan selamat datang awal
-            appendAgentMessage({
-                thought: "Workspace telah diatur ulang. Agen OpenHands siap menerima instruksi Anda.",
-                actions: [
-                    { type: 'Atur Ulang', text: 'Memuat templat awal' }
-                ]
-            });
-
-
-            compileAndRenderPreview(PRESET_TEMPLATES['Buat Halaman Landing Startup Teknologi modern dengan statistik interaktif'].code);
-            switchTab('preview');
-        };
-    </script>
+        setChip(null, false);
+        state.agentRunning = false;
+    }, 5600);
+}
+
+function runAgentFromModel() {
+    const input = document.getElementById('chat-input');
+    const prompt = input.value.trim();
+    if (!prompt || state.agentRunning) return;
+    appendUserMessage(prompt);
+    input.value = '';
+    runAgentSteps(prompt);
+}
+
+function handleChatKeydown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        runAgentFromModel();
+    }
+}
+
+function submitHomePrompt() {
+    const input = document.getElementById('composer-home');
+    const prompt = input.value.trim();
+    if (!prompt) return;
+    input.value = '';
+    CONVERSATIONS.unshift({ id: Date.now() % 100000, title: prompt.substring(0, 40), meta: 'Baru', active: true });
+    CONVERSATIONS.forEach(c => { if (c.id !== CONVERSATIONS[0].id) c.active = false; });
+    renderConversations();
+    state.activeConversation = CONVERSATIONS[0].id;
+    document.getElementById('chat-title').textContent = prompt.substring(0, 40);
+    document.getElementById('chat-meta').textContent = 'Baru';
+    const thread = document.getElementById('chat-thread');
+    thread.innerHTML = '';
+    delete thread.dataset.primed;
+    switchView('chat');
+    appendUserMessage(prompt);
+    runAgentSteps(prompt);
+}
+
+function triggerPresetPrompt(promptText) {
+    document.getElementById('composer-home').value = promptText;
+    switchView('home');
+}
+
+// ===== Preview rendering =====
+function renderPreview(content) {
+    const frame = document.getElementById('preview-frame');
+    let htmlDoc = content;
+    if (!htmlDoc.trim().startsWith('<!DOCTYPE') && !htmlDoc.trim().startsWith('<html')) {
+        htmlDoc = buildReactShell(content);
+    }
+    frame.srcdoc = htmlDoc;
+    document.getElementById('browser-drawer').classList.remove('hidden');
+}
+
+function buildReactShell(jsx) {
+    let cleaned = jsx
+        .replace(/import\s+[\s\S]*?from\s+['"][^'"]+['"];?/g, '')
+        .replace(/export\s+default\s+function\s+(\w+)/g, 'function $1')
+        .replace(/export\s+default\s+/g, '');
+    return '<!DOCTYPE html>' +
+        '<html lang="id"><head><meta charset="UTF-8" />' +
+        '<script src="https://cdn.tailwindcss.com"><\/script>' +
+        '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">' +
+        '<script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>' +
+        '<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>' +
+        '<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>' +
+        '<style>body { margin: 0; font-family: Outfit, sans-serif; background: #0d0f11; color: #fff; }</style>' +
+        '</head><body><div id="root"></div>' +
+        '<script type="text/babel">' +
+        'try { ' + cleaned +
+        ' const TargetComponent = typeof App !== "undefined" ? App : null;' +
+        ' if (TargetComponent) { ReactDOM.createRoot(document.getElementById("root")).render(<TargetComponent />); }' +
+        ' else { document.getElementById("root").innerHTML = "Komponen React App tidak ditemukan."; }' +
+        ' } catch (err) { document.getElementById("root").innerHTML = "<b>Kesalahan Runtime React:</b><br/>" + err.message; }' +
+        '<\/script></body></html>';
+}
+
+function generateDynamicApp(prompt) {
+    return '<!DOCTYPE html>' +
+        '<html lang="id"><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"><\/script>' +
+        '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head>' +
+        '<body class="bg-slate-950 text-white font-sans p-8 min-h-screen flex items-center justify-center">' +
+        '<div class="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6">' +
+        '<div class="flex items-center space-x-3 text-indigo-400"><i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>' +
+        '<h1 class="text-2xl font-bold text-white">Aplikasi Canvas Kustom OpenHands</h1></div>' +
+        '<p class="text-slate-300 text-sm leading-relaxed">Target Instruksi: <span class="text-blue-400 font-mono bg-slate-950 px-2 py-1 rounded border border-slate-800">' + esc(prompt) + '</span></p>' +
+        '<div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 space-y-3">' +
+        '<div class="flex items-center justify-between text-xs text-slate-400"><span>Status</span><span class="text-emerald-400 font-semibold">Aktif & Berjalan</span></div>' +
+        '<div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-full"></div></div>' +
+        '</div><div class="flex gap-3"><button onclick="alert(\'Aksi interaktif dipicu!\')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm transition">Uji Pemicu Interaktif</button></div>' +
+        '</div></body></html>';
+}
+
+function refreshBrowser() {
+    const frame = document.getElementById('preview-frame');
+    if (frame.srcdoc) frame.srcdoc = frame.srcdoc;
+}
+
+function openBrowserNewTab() {
+    const frame = document.getElementById('preview-frame');
+    const blob = new Blob([frame.srcdoc], { type: 'text/html' });
+    window.open(URL.createObjectURL(blob), '_blank');
+}
+
+function toggleBrowserDrawer(show) {
+    const drawer = document.getElementById('browser-drawer');
+    if (show === undefined) show = drawer.classList.contains('hidden');
+    drawer.classList.toggle('hidden', !show);
+}
+
+// ===== Automations =====
+const AUTOMATIONS = [
+    { name: 'PR Triage Digest', desc: 'Review newly opened pull requests in acme/frontend-app, identify risky changes, summarize likely impact,and prepare a concise digest with priority ordering for the engineering review channel.', repo: 'acme/frontend-app', schedule: 'Weekdays at 09:00', profile: 'triage-fast' },
+    { name: 'Docs Sync on Push', desc: 'Monitor acme/docs for new pushes. For each push, generate a changelog-ready summary and post a draft to the #docs channel.', repo: 'acme/docs', schedule: 'Runs on every push', profile: 'docs-fast' },
+    { name: 'GitHub PR Review copilot', desc: 'Watch pull requests, inspect the diff,and leave a concise review with risks and suggested follow-ups.', repo: 'acme/frontend-app', schedule: 'On demand (label PR-review)', profile: 'review-fast' }
+];
+
+function renderAutomations(query) {
+    const grid = document.getElementById('automation-grid');
+    const q = (query || '').toLowerCase();
+    const items = AUTOMATIONS.filter(a => (a.name + a.desc + a.repo + a.schedule).toLowerCase().includes(q));
+    grid.innerHTML = items.map(function(a, i) {
+        return '<div class="bg-pane border border-line rounded-xl p-4 space-y-3 transition hover:border-accent/40 cursor-pointer" onclick="showAutomationDetail(' + i + ')">' +
+            '<div class="flex items-start justify-between gap-2">' +
+                '<div class="flex items-center space-x-2 text-sm font-medium text-text">' +
+                    '<span class="w-2 h-2 rounded-full bg-ok inline-block shrink-0"></span><span>' + esc(a.name) + '</span>' +
+                '</div>' +
+                '<button onclick="event.stopPropagation();alert(\'Menjalankan ' + esc(a.name) + ' sekarang...\')" title="Run now" class="text-xs text-muted hover:text-white px-2 py-1 rounded-md border border-line hover:bg-active transition shrink-0">Run now</button>' +
+            '</div>' +
+            '<p class="text-xs text-muted leading-relaxed">' + esc(a.desc) + '</p>' +
+            '<div class="flex flex-wrap items-center gap-1.5 text-[10px] text-muted font-mono">' +
+                '<span class="bg-sidebar border border-line px-1.5 py-0.5 rounded flex items-center space-x-1"><i class="fa-brands fa-github text-xs"></i><span>' + esc(a.repo) + '</span></span>' +
+                '<span class="bg-sidebar border border-line px-1.5 py-0.5 rounded">' + esc(a.schedule) + '</span>' +
+                '<span class="bg-sidebar border border-line px-1.5 py-0.5 rounded text-accent">' + esc(a.profile) + '</span>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function showAutomationDetail(i) {
+    const a = AUTOMATIONS[i]; if (!a) return;
+    alert('Detail Automation:\n\n' + a.name + '\nStatus: Active\nRepo: ' + a.repo + '\nJadwal: ' + a.schedule + '\nLLM profile: ' + a.profile + '\n\n' + a.desc);
+}
+
+// ===== Customize rendering =====
+const SKILLS = [
+    { name: 'code-review', src: 'github:OpenHands/extensions/skills/code-review', desc: 'Structured code review focused on correctness, security,and maintainability.', tag: 'Auto-discovery', ver: 'v1.2.0' },
+    { name: 'docker', src: 'github:OpenHands/extensions/skills/docker', desc: 'Run and manage containers, including local Docker daemon setup.', tag: 'Auto-discovery', ver: 'v0.9.1' },
+    { name: 'prd', src: 'github:OpenHands/extensions/skills/prd', desc: 'Generate a Product Requirements Document (PRD) for a new feature.', tag: 'Auto-discovery', ver: 'v0.9.1' },
+    { name: 'repo-rules', src: 'github:OpenHands/extensions/skills/repo-rules', desc: 'Membaca aturan repositori ( AGENTS.md, .cursorrules ) untuk konteks agen.', tag: 'Auto-discovery', ver: 'v1.0.2' },
+    { name: 'technical-writing', src: 'github:OpenHands/extensions/skills/technical-writing', desc: 'Guides technical explanations toward flowing, direct, conversational prose.', tag: 'Auto-discovery', ver: 'v1.1.0' },
+    { name: 'frontend-design', src: 'github:OpenHands/extensions/skills/frontend-design', desc: 'Create distinctive, production-grade frontend interfaces with high design quality.', tag: 'Auto-discovery', ver: 'v1.0.5' }
+];
+
+function renderSkills(query) {
+    const grid = document.getElementById('skills-grid');
+    const q = (query || '').toLowerCase();
+    const items = SKILLS.filter(s => (s.name + s.desc + s.tag).toLowerCase().includes(q));
+    grid.innerHTML = items.map(function(s) {
+        return '<div class="bg-pane border border-line rounded-xl p-4 space-y-2.5">' +
+            '<div class="flex items-start justify-between gap-2">' +
+                '<div class="font-mono text-sm font-medium text-text flex items-center space-x-2">' +
+                    '<i class="fa-solid fa-plug text-accent text-xs"></i><span>' + esc(s.name) + '</span>' +
+                '</div>' +
+                '<button onclick="alert(\'Install ' + esc(s.name) + '\')" class="text-[10px] text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-md hover:bg-accent/20 transition shrink-0">Install</button>' +
+            '</div>' +
+            '<p class="text-xs font-mono text-muted truncate" title="' + esc(s.src) + '">' + esc(s.src) + '</p>' +
+            '<p class="text-xs text-muted leading-relaxed">' + esc(s.desc) + '</p>' +
+            '<div class="flex items-center justify-between text-[10px] text-muted">' +
+                '<span class="bg-sidebar border border-line px-1.5 py-0.5 rounded">' + esc(s.tag) + '</span>' +
+                '<span class="font-mono">' + esc(s.ver) + '</span>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function filterSkills(v) { renderSkills(v); }
+
+function switchCustomizeTab(tab) {
+    state.customizeTab = tab;
+    ['skills', 'mcp', 'plugins'].forEach(function(t) {
+        const btn = document.getElementById('c-tab-' + t);
+        const panel = document.getElementById('c-panel-' + t);
+        btn.classList.toggle('text-white', t === tab);
+        btn.classList.toggle('text-muted', t !== tab);
+        btn.classList.toggle('border-accent', t === tab);
+        btn.classList.toggle('border-transparent', t !== tab);
+        panel.classList.toggle('hidden', t !== tab);
+    });
+    if (tab === 'mcp') renderMcp();
+}
+
+const MCPSERVERS = [
+    { name: 'GitHub', desc: 'Integrasi repositori, pull request, issuess, dan Actions lewat GitHub MCP.', level: 'Popular', cat: 'Source Control' },
+    { name: 'Slack', desc: 'Baca pesan kanal, kirim balasan,and triger alur kerja dari Slack.', level: 'Popular', cat: 'Team Chat' },
+    { name: 'Notion', desc: 'Buat, cari,and perbarui halaman/database Notion lewat API.', level: 'Popular', cat: 'Knowledge' },
+    { name: 'Linear', desc: 'Interaksi dengan issue, sprint,and project tracking Linear.', level: 'Popular', cat: 'Project Management' },
+    { name: 'Playwright', desc: 'Otomasi browser end-to-end: navigasi, klik,and replika UI.', level: 'Popular', cat: 'Browser' },
+    { name: 'Fetch', desc: 'HTTP requests flexibel untuk memanggil REST API eksternal.', level: 'Built-in', cat: 'Web' }
+];
+
+function renderMcp() {
+    const grid = document.getElementById('mcp-grid');
+    grid.innerHTML = MCPSERVERS.map(function(m) {
+        return '<div class="bg-pane border border-line rounded-xl p-4 space-y-2.5">' +
+            '<div class="flex items-start justify-between gap-2">' +
+                '<div class="flex items-center space-x-2 text-sm font-medium text-text">' +
+                    '<i class="fa-solid fa-microchip text-accent text-xs"></i><span>' + esc(m.name) + '</span>' +
+                '</div>' +
+                '<span class="text-[10px] ' + (m.level === 'Popular' ? 'text-accent bg-accent/10' : 'text-ok bg-ok/10') + ' border border-line px-1.5 py-0.5 rounded shrink-0">' + m.level + '</span>' +
+            '</div>' +
+            '<p class="text-xs text-muted leading-relaxed">' + esc(m.desc) + '</p>' +
+            '<div class="flex items-center justify-between text-[10px] text-muted">' +
+                '<span class="bg-sidebar border border-line px-1.5 py-0.5 rounded">' + esc(m.cat) + '</span>' +
+                '<button onclick="alert(\'Instal ' + esc(m.name) + ' MCP server...\')" class="text-accent hover:bg-accent/10 px-1.5 py-0.5 rounded transition">Install</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+// ===== Modals & Misc =====
+function openWorkspaceModal() {
+    document.getElementById('workspace-modal').classList.remove('hidden');
+    document.getElementById('workspace-modal').classList.add('flex');
+}
+
+function closeWorkspaceModal() {
+    document.getElementById('workspace-modal').classList.add('hidden');
+    document.getElementById('workspace-modal').classList.remove('flex');
+}
+
+function copyShareLink() {
+    const url = window.location.href;
+    alert("Tautan workspace disalin: " + url);
+}
+
+// ===== Boot =====
+window.onload = function() {
+    renderConversations();
+    renderAutomations('');
+    renderSkills();
+    renderMcp();
+    const landing = PRESET_TEMPLATES['Buat Halaman Landing Startup Teknologi modern dengan statistik interaktif'];
+    if (landing) {
+        document.getElementById('preview-frame').srcdoc = landing.code;
+    }
+};
+
+</script>
 </body>
 </html>
