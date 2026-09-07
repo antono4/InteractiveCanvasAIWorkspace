@@ -27,6 +27,8 @@ const runtimeInfo = {
   },
 };
 
+const vscodePort = Number(process.env.OH_CANVAS_SAFE_VSCODE_PORT || '20000');
+
 // ESLint-comment: the template uses `bin` in some variants; keep simple and spawn node directly.
 const script = path.join(pkgRoot, 'scripts', 'static-server.mjs');
 const args = [
@@ -36,6 +38,8 @@ const args = [
   '--host', '0.0.0.0',
   '--session-api-key', key,
   '--runtime-services-info', JSON.stringify(runtimeInfo),
+  '--vscode-base-path', '/vscode',
+  '--no-referrer-prefix', '/vscode',
   '--route', '/api=http://127.0.0.1:19000',
   '--route', '/sockets=http://127.0.0.1:19000',
   '--route', '/server_info=http://127.0.0.1:19000',
@@ -46,6 +50,7 @@ const args = [
   '--route', '/health=http://127.0.0.1:19000',
   '--route', '/ready=http://127.0.0.1:19000',
   '--route', '/api/automation=http://127.0.0.1:19001',
+  '--route', `/vscode=http://127.0.0.1:${vscodePort}`,
 ];
 
 const child = spawn(process.execPath, args, {
